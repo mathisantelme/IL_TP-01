@@ -1,10 +1,10 @@
-// la classe abstraite Programme qui permet au Client d'appeler les méthodes communes à chaque programme de traitement
-abstract class Programme {
-    abstract void go();
+// l'interface Programme qui permet au Client d'appeler les méthodes communes à chaque programme de traitement
+public interface Programme {
+    public void go();
 }
 
-// le programme de traitement 1 (on hérite de la classe Programme afin de pouvoir appeler la méthode go sans distinction)
-class Programme1 extends Programme {
+// le programme de traitement 1 (on implémente l'interface Programme afin de pouvoir appeler la méthode go sans distinction)
+class Programme1 implements Programme {
     public Programme1 () {} // le constructeur ne sert à rien pour le moment
 
     public void go () {
@@ -12,8 +12,8 @@ class Programme1 extends Programme {
     }
 }
 
-// le programme de traitement 2 (on hérite de la classe Programme afin de pouvoir appeler la méthode go sans distinction)
-class Programme2 extends Programme {
+// le programme de traitement 2 (on implémente l'interface Programme afin de pouvoir appeler la méthode go sans distinction)
+class Programme2 implements Programme {
     public Programme2 () {} // le constructeur ne sert à rien pour le moment
 
     public void go () {
@@ -21,8 +21,8 @@ class Programme2 extends Programme {
     }
 }
 
-// le programme de traitement 3 (on hérite de la classe Programme afin de pouvoir appeler la méthode go sans distinction)
-class Programme3 extends Programme {
+// le programme de traitement 3 (on implémente l'interface Programme afin de pouvoir appeler la méthode go sans distinction)
+class Programme3 implements Programme {
     public Programme3 () {} // le constructeur ne sert à rien pour le moment
 
     public void go () {
