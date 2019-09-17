@@ -30,10 +30,8 @@ class Programme3 implements Programme {
     }
 }
 
-// la classe client qui appelle les différents programmes de traitement
-class Client {
-
-    public static Programme createProgramme (int n) {
+class ProgramFactory {
+    public Programme createProgramme (int n) {
         // en fonction de la valeur de l'entier on initialise  le traitement correspondant et on le retourne
         switch (n) {
             case 1:
@@ -51,14 +49,19 @@ class Client {
                 return null;
         }
     }
+}
 
+// la classe client qui appelle les différents programmes de traitement
+class Client {
     public static void main (String[] args) {
         try {
-            
+            // on initialise un object factory qui nous permet de créer les traitements
+            ProgramFactory prgFactory = new ProgramFactory();
+
             System.out.println("Je suis le traitement 1");
 
-            // on appelle la méthode go directement depuis le traitement retourné par la fonction (si l'objet retourné est null alors on affiche un message d'erreur grace au try catch)
-            createProgramme(Integer.valueOf(args[0]).intValue()).go();
+            // on appelle la méthode go directement depuis le traitement retourné par la fonction de création de traitement de la factory (si l'objet retourné est null alors on affiche un message d'erreur grace au try catch)
+            prgFactory.createProgramme(Integer.valueOf(args[0]).intValue()).go();
 
         // si on a pas récupéré un nombre entier alors on quitte le programme avec l'exception
         // si le nombre d'arguements passé n'est pas correct alors on quitte avec un message d'erreur
