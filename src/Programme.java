@@ -33,19 +33,43 @@ class Programme3 extends Programme {
 // la classe client qui appelle les différents programmes de traitement
 class Client {
     public static void main (String[] args) {
-        // on appelle le premier programme
-        Programme prg = new Programme1();
-        System.out.println("Je suis le main 1");
-        prg.go();
 
-        // puis le second
-        prg = new Programme2();
-        System.out.println("Je suis le main 1");
-        prg.go();
+        Programme prg = null; // on initialise un programme par défaut qui est null
 
-        // puis le dernier
-        prg = new Programme3();
-        System.out.println("Je suis le main 1");
-        prg.go();
+        // on vérifie que l'on récupère bien un entier
+        try {
+
+            // en fonction de la valeur de l'entier on initialise  le traitement correspondant
+            switch (Integer.valueOf(args[0]).intValue()) {
+                case 1:
+                    prg = new Programme1();
+                    break;
+    
+                case 2:
+                    prg = new Programme2();
+                    break;
+    
+                case 3:
+                    prg = new Programme3();
+                    break;
+            
+                default:
+                    // si le numéro n'est pas correct alors on affiche un message
+                    System.out.println("Wrong arguement. Please use 1, 2 or 3");
+                    break;
+            }
+    
+            // si le programme n'est pas null alors on appelle la méthode du traitement correspondant
+            if (prg != null) {
+                System.out.println("Je suis le traitement 1");
+                prg.go();
+            }
+
+        // si on a pas récupéré un nombre entier alors on quitte le programme avec l'exception
+        // si le nombre d'arguements passé n'est pas correct alors on quitte avec un message d'erreur
+        } catch (java.lang.NumberFormatException | java.lang.ArrayIndexOutOfBoundsException e) {
+            System.out.println("Wrong arguement type");
+            System.out.println(e.toString());
+        }
     }
 }
