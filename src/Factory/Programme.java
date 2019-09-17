@@ -30,6 +30,17 @@ class Programme3 implements Programme {
     }
 }
 
+// le programme de traitement 4
+// on copie colle le code de Programme3 en modifiant ce qui à besoin de l'etre
+class Programme4 implements Programme {
+    public Programme4 () {} // le constructeur ne sert à rien pour le moment
+
+    public void go () {
+        System.out.println("Je suis le traitement 4");
+    }
+}
+
+// classe qui permet la création des objets de traitement
 class ProgramFactory {
     public Programme createProgramme (int n) {
         // en fonction de la valeur de l'entier on initialise  le traitement correspondant et on le retourne
@@ -42,6 +53,10 @@ class ProgramFactory {
 
             case 3:
                 return new Programme3();
+
+            // il suffit d'ajouter un case pour créer un nouvel objet
+            case 4:
+                return new Programme4();
         
             default:
                 // si le numéro n'est pas correct alors on affiche un message
