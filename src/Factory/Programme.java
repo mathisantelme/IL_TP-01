@@ -1,3 +1,5 @@
+package Factory;
+
 // l'interface Programme qui permet au Client d'appeler les méthodes communes à chaque programme de traitement
 public interface Programme {
     public void go();

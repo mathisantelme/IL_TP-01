@@ -1,3 +1,5 @@
+package AbstractFactory;
+
 // Parsers =============================================================================
 
 // une interface qui permet de parser les nom de fichier depuis un chemin absolu
