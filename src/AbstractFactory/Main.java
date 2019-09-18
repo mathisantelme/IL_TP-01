@@ -1,9 +1,8 @@
-// PathParsers ============================================================================
+// Parsers =============================================================================
 
 // une interface qui permet de parser les nom de fichier depuis un chemin absolu
 interface FileNameParser {
     void parse_filename (String path);
-    int count_folders_to_root (String path);
 }
 
 // une classe implémentant FileNameParser qui permet de parser un nom de fichier sous UNIX
@@ -20,11 +19,6 @@ class LinuxFileNameParser implements FileNameParser {
         // on construit une string qui ne contient que la partie à droite du dernier caractére /
         String r = path.substring(index + 1);
         System.out.println(r);
-    }
-
-    @Override
-    public int count_folders_to_root(String path) {
-        return this.linuxCounter.count_folders_to_root(path);
     }
 }
 
@@ -43,30 +37,16 @@ class WindowsFileNameParser implements FileNameParser {
         String r = path.substring(index + 1);
         System.out.println(r);
     }
-
-    @Override
-    public int count_folders_to_root(String path) {
-        return this.winCounter.count_folders_to_root(path);
-    }
-}
-
-// une factory qui permet de créer différents parsers
-class ParserFactory {
-    // retourne un parser pour Linux
-    public LinuxFileNameParser createLinuxParser () {
-        return new LinuxFileNameParser();
-    }
-
-    // retourne un parser pour Windows
-    public WindowsFileNameParser createWindowsParser () {
-        return new WindowsFileNameParser();
-    }
 }
 
 // FolderCounters =====================================================================
 
+interface FolderCounter {
+    int count_folders_to_root (String path);
+}
+
 // une classe implémentant FolderCounter qui permet de compter le nombre de dossier pour remonter à la racine sous un systeme windows
-class WindowsFolderCounter implements FileNameParser {
+class WindowsFolderCounter implements FolderCounter {
     public int count_folders_to_root (String path) {
         String str = (path.charAt(path.length() - 1) == '\\' ) ? path.substring(0, path.length() - 1): path; // on supprime le caractère / de fin si il existe
         int cpt = 0; // le compteur de dossier
@@ -77,13 +57,10 @@ class WindowsFolderCounter implements FileNameParser {
 
         return (cpt - 1); // on retourne le nombre de dossier
     }
-
-    @Override
-    public void parse_filename(String path) {} // on est obligé dedéfinir la méthode afin d'implémenter l'interface ParserFactory
 }
 
 // une classe implémentant FolderCounter qui permet de compter le nombre de dossier pour remonter à la racine sous un systeme UNIX
-class LinuxFolderCounter implements FileNameParser {
+class LinuxFolderCounter implements FolderCounter {
     public int count_folders_to_root (String path) {
         String str = (path.charAt(path.length() - 1) == '/' ) ? path.substring(0, path.length() - 1): path; // on supprime le caractère / de fin si il existe
         int cpt = 0; // le compteur de dossier
@@ -94,27 +71,78 @@ class LinuxFolderCounter implements FileNameParser {
 
         return (cpt - 1); // on retourne le nombre de dossier
     }
-
-    @Override
-    public void parse_filename(String path) {} // on est obligé de définir la méthode afin de pouvoir implémenter l'interface ParserFactory
 }
 
-// ======================================================
+// Factory ======================================================
+
+// une factory qui permet de créer un parser et un counter
+interface OsFactory {
+    FileNameParser createParser (); // permet de créer un parser
+    FolderCounter createCounter (); // permet de créer un counter
+}
+
+// une factory qui permet de créer un parser et un counter pour Windows
+class WindowsFactory implements OsFactory {
+    // retourne un parser pour Windows
+    public FileNameParser createParser () {
+        return new WindowsFileNameParser();
+    }
+
+    public FolderCounter createCounter() {
+        return new WindowsFolderCounter();
+    }
+}
+// une factory qui permet de créer un parser et un counter pour Unix
+class LinuxFactory implements OsFactory {
+    // retourne un parser pour Linux
+    public FileNameParser createParser () {
+        return new LinuxFileNameParser();
+    }
+
+    public FolderCounter createCounter() {
+        return new LinuxFolderCounter();
+    }
+}
+
+// Main =========================================================
 
 public class Main {
     public static void main (String[] args) {
-        // on créé une factory afin de créer des parsers
-        ParserFactory parserFactory = new ParserFactory();
+        // on créé une factory pour chaque OS
+        OsFactory windowsFactory = new WindowsFactory();
+        OsFactory linuxFactory = new LinuxFactory();
 
-        // on essaie de parser un chemin de fichier de type windows
-        parserFactory.createWindowsParser().parse_filename("C:\\Windows\\hello.dll");
+        // Pour chaque OS on créé un parser et un counter
+        // pour windows =================================
+        FileNameParser winParser = windowsFactory.createParser(); // création d'un parser
+        FolderCounter winCounter = windowsFactory.createCounter(); // création d'un counter
 
-        // on essaie de parser un chemin de fichier de type unix
-        parserFactory.createLinuxParser().parse_filename("/home/hello.rc");
+        // on créé des filepaths de test
+        String winPath1 = "C:\\Windows\\ProgramFiles\\test\\hello.dll"; // il y a 3 dossiers jusqu'à la racine
+        String winPath2 = "C:\\Windows\\ProgramFiles\\test.dll"; // il y a 2 dossiers jusqu'à la racine
 
-        
-        // on essaie de compter les dossier jusqu'à la ra ParserFactorycine du fichier (UNIX)
-        System.out.println("folders to system root: " + parserFactory.createLinuxParser().count_folders_to_root("/home/kalhan/test.c/")); // doit retourner 2
-        System.out.println("folders to system root: " + parserFactory.createWindowsParser().count_folders_to_root("C:\\Windows\\hello.dll")); // doit retourner 1
+        // on appelle la fonction de parsing et on affiche les résultats
+        winParser.parse_filename(winPath1); // est sensé afficher "hello.dll"
+        winParser.parse_filename(winPath2); // est sensé afficher "test.dll"
+
+        // on appelle la fonction du counter et on affiche les résultats
+        System.out.println("[Win] Folder count to system root: " + winCounter.count_folders_to_root(winPath1)); // est sensé afficher 3
+        System.out.println("[Win] Folder count to system root: " + winCounter.count_folders_to_root(winPath2)); // est sensé afficher 2
+
+        // pour linux ===================================
+        FileNameParser linuxParser = linuxFactory.createParser(); // création d'un parser
+        FolderCounter linuxCounter = linuxFactory.createCounter(); // création d'un counter
+
+        // on créé des filepaths de test
+        String linuxPath1 = "/home/Documents/test/hello.c"; // il y a 3 dossiers jusqu'à la racine
+        String linuxPath2 = "/home/Documents/test.c"; // il y a 2 dossiers jusqu'à la racine
+
+        // on appelle la fonction de parsing et on affiche les résultats
+        linuxParser.parse_filename(linuxPath1); // est sensé afficher "hello.c"
+        linuxParser.parse_filename(linuxPath2); // est sensé afficher "test.c"
+
+        // on appelle la fonction du counter et on affiche les résultats
+        System.out.println("[Unix] Folder count to system root: " + linuxCounter.count_folders_to_root(linuxPath1)); // est sensé afficher 3
+        System.out.println("[Unix] Folder count to system root: " + linuxCounter.count_folders_to_root(linuxPath2)); // est sensé afficher 2
     }
 }
